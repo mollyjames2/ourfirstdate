@@ -19,7 +19,7 @@ else:
     # If running as a script
     BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
-scene = 3
+scene = 0
 actionable = False  # Whether the actionable game has started
 
 # CONSTANTS
