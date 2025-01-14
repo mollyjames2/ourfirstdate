@@ -1,0 +1,31 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Install Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.11.11'  # Use Python 3.9+ for pygbag
+
+    - name: Install pygbag
+      run: pip install pygbag
+
+    - name: Build Game with pygbag
+      run: pygbag --build .
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./build/web
