@@ -510,7 +510,7 @@ def follow_sam(sam_pos, molly_pos, follow_distance=40, follow_speed=3):
 
 
 async def apply_idle_sway_with_follow(
-    sam_pos, molly_pos, sway_timer, sway_direction, sway_magnitude, sway_frequency, keys, follow_speed=2.5, max_sway=3
+    sam_pos, molly_pos, sway_timer, sway_direction, sway_magnitude, sway_frequency, keys, follow_speed=2.5, max_sway=5
 ):
     """
     Handles idle sway for Sam and Molly with directional veering based on key presses.
@@ -538,16 +538,16 @@ async def apply_idle_sway_with_follow(
     sway = sway_direction * sway_magnitude
 
     # Handle directional movement for Sam
-    if keys[pygame.K_UP]:
-        sam_pos.y -= follow_speed
-        sam_pos.x += sway  # Add subtle sway for realism
-    if keys[pygame.K_DOWN]:
-        sam_pos.y += follow_speed
-        sam_pos.x -= sway
-    if keys[pygame.K_LEFT]:
-        sam_pos.x -= follow_speed
-    if keys[pygame.K_RIGHT]:
-        sam_pos.x += follow_speed
+    if keys[pygame.K_UP]:  # Pressing UP moves Sam DOWN
+        sam_pos.y += follow_speed  # Invert: DOWN instead of UP
+        sam_pos.x -= sway  # Adjust sway for realism
+    if keys[pygame.K_DOWN]:  # Pressing DOWN moves Sam UP
+        sam_pos.y -= follow_speed  # Invert: UP instead of DOWN
+        sam_pos.x += sway
+    if keys[pygame.K_LEFT]:  # Pressing LEFT moves Sam RIGHT
+        sam_pos.x += follow_speed  # Invert: RIGHT instead of LEFT
+    if keys[pygame.K_RIGHT]:  # Pressing RIGHT moves Sam LEFT
+        sam_pos.x -= follow_speed  # Invert: LEFT instead of RIGHT
 
     # Idle sway if no keys are pressed
     if not any(keys[key] for key in [pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT]):
@@ -766,7 +766,7 @@ async def minigame_scene_6():
 
     # Mini-game setup
     heart_pos_x = WIDTH // 2
-    heart_speed = 15
+    heart_speed = 13
     heart_direction = 1
     heart_size = (80, 80)  # Larger heart size
     heart_image = pygame.image.load("assets/sprites/heart.png")  # Replace with your heart image path
@@ -973,7 +973,7 @@ async def scene_1(keys):
     draw_sprite(bike, (bike_pos.x, bike_pos.y))
 
     if not actionable and not scene_1.pub_reached:
-        await text_box("Oh look at the time, it's nearly 7pm!", "Use the arrow keys to cycle to the pub for your date.")
+        await text_box("USE THE DOWN ARROW TO SCROLL THROUGH THE TEXT", "Oh look at the time, it's nearly 7pm!", "Use the arrow keys to cycle to the pub for your date.")
         actionable = True
         scene_1.pub_reached = True
     else:
@@ -1009,7 +1009,7 @@ async def scene_1(keys):
                         "Molly: Yep! You must be Sam!",
                         "Sam: Cool! Nice to meet you!",
                         "Want to walk together?",
-                        "Molly: Yeah sure!",
+                        "Molly: Yeah sure! I'll follow you!",
                     )
                     scene_1.interacted = True
                     actionable = True
