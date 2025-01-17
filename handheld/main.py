@@ -12,12 +12,8 @@ import math
 pygame.init()
 pygame.font.init()
 
-if getattr(sys, 'frozen', False):
-    # If running as a bundled executable
-    BASE_PATH = sys._MEIPASS
-else:
-    # If running as a script
-    BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+# If running as a script
+BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 scene = 0
 actionable = False  # Whether the actionable game has started
@@ -25,7 +21,7 @@ actionable = False  # Whether the actionable game has started
 # CONSTANTS
 WIDTH, HEIGHT = 128, 128
 SPRITE_SCALER = 0.28
-SPRITE_WIDTH, SPRITE_HEIGHT = 50*SPRITE_SCALER, 70*SPRITE_SCALER
+SPRITE_WIDTH, SPRITE_HEIGHT = int(50*SPRITE_SCALER), int(70*SPRITE_SCALER)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 ORANGE = (255, 165, 0) # for the beers
@@ -81,14 +77,14 @@ sprites = SpriteManager()
 # Load and scale sprites
 sprites.load("sam", "assets/sprites/sam_sprite.png", (SPRITE_WIDTH, SPRITE_HEIGHT))
 sprites.load("molly", "assets/sprites/molly_sprite.png", (SPRITE_WIDTH, SPRITE_HEIGHT))
-sprites.load("pub", "assets/sprites/LHA.png", (150 * SPRITE_SCALER, 150 * SPRITE_SCALER))
-sprites.load("bar", "assets/sprites/bar.png", (150 * SPRITE_SCALER, 150 * SPRITE_SCALER))
-sprites.load("table", "assets/sprites/table.png", (200 * SPRITE_SCALER, 100 * SPRITE_SCALER))
-sprites.load("door", "assets/sprites/door.png", (100 * SPRITE_SCALER, 100 * SPRITE_SCALER))
-sprites.load("house", "assets/sprites/house.png", (150 * SPRITE_SCALER, 100 * SPRITE_SCALER))
-sprites.load("maggie", "assets/sprites/mag.png", (SPRITE_WIDTH*1.5, SPRITE_HEIGHT*1.5))
-sprites.load("mike", "assets/sprites/mike.png", (SPRITE_WIDTH*1.5, SPRITE_HEIGHT*1.5))
-sprites.load("sofa", "assets/sprites/sofa.png", (200 * SPRITE_SCALER, 100 * SPRITE_SCALER))
+sprites.load("pub", "assets/sprites/LHA.png", (int(150 * SPRITE_SCALER), int(150 * SPRITE_SCALER)))
+sprites.load("bar", "assets/sprites/bar.png", (int(150 * SPRITE_SCALER), int(150 * SPRITE_SCALER)))
+sprites.load("table", "assets/sprites/table.png", (int(200 * SPRITE_SCALER), int(100 * SPRITE_SCALER)))
+sprites.load("door", "assets/sprites/door.png", (int(100 * SPRITE_SCALER), int(100 * SPRITE_SCALER)))
+sprites.load("house", "assets/sprites/house.png", (int(150 * SPRITE_SCALER), int(100 * SPRITE_SCALER)))
+sprites.load("maggie", "assets/sprites/mag.png", (int(SPRITE_WIDTH*1.5), int(SPRITE_HEIGHT*1.5)))
+sprites.load("mike", "assets/sprites/mike.png", (int(SPRITE_WIDTH*1.5), int(SPRITE_HEIGHT*1.5)))
+sprites.load("sofa", "assets/sprites/sofa.png", (int(200 * SPRITE_SCALER), int(100 * SPRITE_SCALER)))
 sprites.load("heart", "assets/sprites/heart.png", (SPRITE_WIDTH, SPRITE_HEIGHT))
 
 
