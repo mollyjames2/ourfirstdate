@@ -12,6 +12,8 @@ import math
 pygame.init()
 pygame.font.init()
 
+os.environ["DISPLAY"] = ":0"
+
 # If running as a script
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -19,8 +21,8 @@ scene = 0
 actionable = False  # Whether the actionable game has started
 
 # CONSTANTS
-WIDTH, HEIGHT = 128, 128
-SPRITE_SCALER = 0.28
+WIDTH, HEIGHT = 296,300
+SPRITE_SCALER = 0.7
 SPRITE_WIDTH, SPRITE_HEIGHT = int(50*SPRITE_SCALER), int(70*SPRITE_SCALER)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -33,10 +35,11 @@ font_large = pygame.font.SysFont("Verdana", int(35 * SPRITE_SCALER))
 font_small = pygame.font.SysFont("Verdana", int(30 * SPRITE_SCALER))
 font = font_small
 
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
 pygame.display.set_caption("First Date Adventure")
 clock = pygame.time.Clock()
 
+pygame.mouse.set_visible(False)
 # Key State Initialization
 key_states = {"up_pressed": False, "down_pressed": False}
 
@@ -60,7 +63,8 @@ class SpriteManager:
         
     def load_with_aspect_ratio(self, name, path, target_height):
         """Load a sprite and scale it while maintaining the aspect ratio."""
-        image = pygame.image.load(path).convert_alpha()
+        full_path = os.path.join(BASE_PATH, path)  # Construct the full path
+        image = pygame.image.load(full_path).convert_alpha()
         original_width, original_height = image.get_width(), image.get_height()
         aspect_ratio = original_width / original_height
         scaled_width = int(target_height * aspect_ratio)
@@ -111,7 +115,7 @@ heart = sprites.get("heart")
 sam_pos = pygame.Vector2(int(30 * SPRITE_SCALER), HEIGHT // 2 - int(40 * SPRITE_SCALER))  # Sam's position, slightly left and vertically centered
 
 # Molly starts off-screen, much further left and above the screen (out of view)
-molly_pos = pygame.Vector2((-SPRITE_WIDTH * SPRITE_SCALER)+2, -SPRITE_HEIGHT -5 * SPRITE_SCALER)  # Molly's off-screen starting position (out of view)
+molly_pos = pygame.Vector2((-SPRITE_WIDTH * SPRITE_SCALER)+20, -SPRITE_HEIGHT -5 * SPRITE_SCALER)  # Molly's off-screen starting position (out of view)
 
 # Calculate bike position directly below Sam (scaled accordingly)
 bike_pos = pygame.Vector2(
@@ -132,7 +136,7 @@ import pygame
 from PIL import Image
 import os
 
-def display_gif(screen, gif_path, duration=3000, center=None):
+def display_gif(screen, gif_path, duration=500, center=None):
     """
     Displays an animated GIF on the screen for a specified duration.
     
@@ -199,7 +203,7 @@ def display_gif(screen, gif_path, duration=3000, center=None):
                 exit()
 
 # Example usage
-gif_path = os.path.join("assets", "GIFs", "LHA.gif")
+gif_path = os.path.join(BASE_PATH,"assets", "GIFs", "LHA.gif")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -321,7 +325,7 @@ def take_picture():
     - Displays the snapshot image on a white background with a black scene.
     """
     # Display the instruction (scaled font size)
-    instruction = font_small.render("Press ENTER", True, WHITE)
+    instruction = font_small.render("Press KEY 3", True, WHITE)
     screen.blit(instruction, (WIDTH // 2 - instruction.get_width() // 2, int(20 * SPRITE_SCALER)))  # Centered at the top (scaled)
 
     pygame.display.flip()
@@ -430,7 +434,7 @@ def text_box(*lines):
                 return
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_DOWN:
+                if event.key == pygame.K_RETURN:
                     if current_box_index + 1 < len(processed_boxes):
                         current_box_index += 1
                     else:
@@ -562,24 +566,24 @@ def apply_idle_sway_with_follow(
 
     # Calculate sway based on duration, scaled for smaller screen
     directional_sway = {
-        "UP": min(hold_sway["UP"] * 0.001, max_sway),  # Reduced sway for small screen
-        "DOWN": min(hold_sway["DOWN"] * 0.001, max_sway),
-        "LEFT": min(hold_sway["LEFT"] * 0.001, max_sway),
-        "RIGHT": min(hold_sway["RIGHT"] * 0.001, max_sway),
+        "UP": min(hold_sway["UP"] * 0.1, max_sway),  # Reduced sway for small screen
+        "DOWN": min(hold_sway["DOWN"] * 0.1, max_sway),
+        "LEFT": min(hold_sway["LEFT"] * 0.1, max_sway),
+        "RIGHT": min(hold_sway["RIGHT"] * 0.1, max_sway),
     }
 
     # Sam's movement with directional controls and veering, using pre-scaled values
     if keys[pygame.K_UP]:
-        sam_pos.y += (0.001 + directional_sway["UP"])  # Reduced movement to fit screen
+        sam_pos.y += (0.1 + directional_sway["UP"])  # Reduced movement to fit screen
         sam_pos.x += sway  # Veers RIGHT
     if keys[pygame.K_DOWN]:
-        sam_pos.y -= (0.001 + directional_sway["DOWN"])  # Reduced movement
+        sam_pos.y -= (0.1 + directional_sway["DOWN"])  # Reduced movement
         sam_pos.x -= sway  # Veers LEFT
     if keys[pygame.K_LEFT]:
-        sam_pos.x += (0.001 + directional_sway["LEFT"])  # Reduced movement
+        sam_pos.x += (0.1 + directional_sway["LEFT"])  # Reduced movement
         sam_pos.y -= sway  # Veers UP
     if keys[pygame.K_RIGHT]:
-        sam_pos.x -= (0.001 + directional_sway["RIGHT"])  # Reduced movement
+        sam_pos.x -= (0.1 + directional_sway["RIGHT"])  # Reduced movement
         sam_pos.y += sway  # Veers DOWN
 
     # Apply idle sway if no keys are pressed
@@ -601,7 +605,7 @@ def minigame_scene_3():
     # Show instructions screen
     screen.fill(BLACK)
     instructions = font_small.render("Follow directions to drink!", True, WHITE)
-    prompt = font_small.render("Press ENTER to start", True, WHITE)
+    prompt = font_small.render("Press KEY 3 to start", True, WHITE)
     screen.blit(instructions, (WIDTH // 2 - instructions.get_width() // 2, HEIGHT // 2 - 50 * SPRITE_SCALER))
     screen.blit(prompt, (WIDTH // 2 - prompt.get_width() // 2, HEIGHT // 2 + 10 * SPRITE_SCALER))
     pygame.display.flip()
@@ -702,7 +706,7 @@ def minigame_scene_3():
     
     dialogue_text = font_large.render("Congratulations!", True, WHITE)
     prompt_text = font_small.render("you finished all the beers!", True, WHITE)
-    prompt_text2 = font_small.render("Press ENTER to continue", True, WHITE)
+    prompt_text2 = font_small.render("Press KEY 3 to continue", True, WHITE)
     screen.blit(dialogue_text, (WIDTH // 2 - dialogue_text.get_width() // 2, HEIGHT // 2 - int(50 * SPRITE_SCALER)))
     screen.blit(prompt_text, (WIDTH // 2 - prompt_text.get_width() // 2, HEIGHT // 2 + (int((50 * SPRITE_SCALER)-10))))
     screen.blit(prompt_text2, (WIDTH // 2 - prompt_text.get_width() // 2, HEIGHT // 2 + (int((50 * SPRITE_SCALER)+10))))
@@ -736,7 +740,7 @@ def minigame_scene_5():
         rendered_line = font_small.render(line, True, WHITE)
         screen.blit(rendered_line, (WIDTH // 2 - rendered_line.get_width() // 2, HEIGHT // 2 - 60 * SPRITE_SCALER + i * int(30 * SPRITE_SCALER)))
     
-    prompt = font_small.render("Press ENTER to start", True, WHITE)
+    prompt = font_small.render("Press KEY 3 to start", True, WHITE)
     screen.blit(prompt, (WIDTH // 2 - prompt.get_width() // 2, HEIGHT // 2 + 50 * SPRITE_SCALER))
     pygame.display.flip()
     # Initialize player and partner positions lower down
@@ -756,7 +760,7 @@ def minigame_scene_5():
     # Initialize sway parameters (scaled for small screen)
     sway_timer = 0
     sway_direction = 1  # Positive or negative sway
-    sway_magnitude = 0.03 * SPRITE_SCALER  # Reduced sway for subtle movement
+    sway_magnitude = 0.5 * SPRITE_SCALER  # Reduced sway for subtle movement
     sway_frequency = int(500 * SPRITE_SCALER)  # Frames before sway direction changes (~2 seconds at 60 FPS)
 
     # Game loop
@@ -804,9 +808,9 @@ def minigame_scene_6():
         instructions = [
             "Stop the heart on the red line",
             "",
-            "Press SPACE to stop it.",
+            "Click in the joystick to stop it.",
             "",
-            "Press ENTER to start."
+            "Press KEY 3 to start."
         ]
         for i, line in enumerate(instructions):
             rendered_line = font_small.render(line, True, WHITE)
@@ -835,7 +839,8 @@ def minigame_scene_6():
         heart_pos_y = (HEIGHT // 2) - 5 - heart_size[1] // 2  # Center the heart vertically
         heart_speed = int(15 * SPRITE_SCALER)  # Scale heart movement speed using the pre-defined SPRITE_SCALER
         heart_direction = 1  # 1 for moving right, -1 for moving left
-        heart_image = pygame.image.load("assets/sprites/heart.png")  # Ensure this image is available
+        full_path = os.path.join(BASE_PATH, "assets/sprites/heart.png")  # Construct the full path
+        heart_image = pygame.image.load(full_path).convert_alpha()
         heart_image = pygame.transform.scale(heart_image, heart_size)
 
         game_running = True
@@ -928,13 +933,14 @@ def game_completed():
 
     # Black screen with text box
     screen.fill(BLACK)
+    PIC_SCALER = 0.3
     # Create the white background for the picture (scaled)
-    box_width, box_height = int(WIDTH * 0.6 * SPRITE_SCALER * 3), int(HEIGHT * 0.6 * SPRITE_SCALER * 3)
-    box_x, box_y = (WIDTH - box_width) // 2, (HEIGHT - box_height) // 2 - int(50 * SPRITE_SCALER)
+    box_width, box_height = int(WIDTH * 0.6 * PIC_SCALER * 3), int(HEIGHT * 0.6 * PIC_SCALER * 3)
+    box_x, box_y = (WIDTH - box_width) // 2, (HEIGHT - box_height) // 2 - int(50 * PIC_SCALER)
     pygame.draw.rect(screen, WHITE, (box_x, box_y, box_width, box_height))
 
     # Load and display the snapshot image (scaled)
-    border_thickness = int(10 * SPRITE_SCALER)
+    border_thickness = int(10 * PIC_SCALER)
     picture_x, picture_y = box_x + border_thickness, box_y + border_thickness
     picture_width, picture_height = box_width - 2 * border_thickness, box_height - 2 * border_thickness
 
@@ -987,7 +993,7 @@ def scene_0(keys):
     # Scale font sizes and adjust text positioning based on the 128x128 screen
     title_text = font_large.render("Where it all began", True, WHITE)
     subtitle_text = font_small.render("Sam and Molly's first date", True, WHITE)
-    prompt_text = font_small.render("Press ENTER to start", True, WHITE)
+    prompt_text = font_small.render("Press KEY 3 to start", True, WHITE)
 
     # Center text horizontally and adjust vertical spacing based on scaling
     screen.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, HEIGHT // 2 - int(100 * SPRITE_SCALER)))
@@ -1037,7 +1043,7 @@ def scene_1(keys):
     
     
     if not actionable and not scene_1.pub_reached:
-        text_box("Oh look at the time, it's nearly 7pm!", "Use the arrow keys to cycle to the pub for your date.")
+        text_box("Press KEY 3 to scroll text","Oh look at the time, it's nearly 7pm!", "Use the joystick to cycle to the pub for your date.")
         actionable = True
         scene_1.pub_reached = True
         
@@ -1100,7 +1106,7 @@ def scene_1(keys):
 
                 # Display "You made it to the pub! Press ENTER to continue" (scaled text)
                 dialogue_text = font_large.render("You made it to the pub!", True, WHITE)
-                prompt_text = font_small.render("Press ENTER to continue", True, WHITE)
+                prompt_text = font_small.render("Press KEY 3 to continue", True, WHITE)
 
                 screen.blit(dialogue_text, (WIDTH // 2 - dialogue_text.get_width() // 2, HEIGHT // 2 - int(50 * SPRITE_SCALER)))
                 screen.blit(prompt_text, (WIDTH // 2 - prompt_text.get_width() // 2, HEIGHT // 2 + int(50 * SPRITE_SCALER)))
@@ -1136,7 +1142,7 @@ def scene_2(keys):
 
     # Display the animated GIF (scaled properly)
     if not scene_2.gif_displayed:
-        display_gif(screen, gif_path, duration=2500)
+        display_gif(screen, gif_path, duration=100)
         actionable = True
         scene_2.gif_displayed = True
 
@@ -1192,7 +1198,8 @@ def scene_3(keys):
         scene_3.game_played = False
         scene_3.initialized = True
         scene_3.molly_burped = False
-        scene_3.molly_near_sam = False
+        scene_3.molly_near_sam = False	
+        scene_3.door_interacted = False
 
     # Fill the screen with black
     screen.fill(BLACK)
@@ -1267,7 +1274,7 @@ def scene_3(keys):
    
         # Interaction with door (scaled interaction zone for door)
     interaction_zone_door = door_rect.inflate(int(1 * SPRITE_SCALER), int(1 * SPRITE_SCALER))  # Expand interaction zone for the door
-    if pygame.Rect(sam_pos.x, sam_pos.y, SPRITE_WIDTH, SPRITE_HEIGHT).colliderect(interaction_zone_door):
+    if pygame.Rect(sam_pos.x, sam_pos.y, SPRITE_WIDTH, SPRITE_HEIGHT).colliderect(interaction_zone_door) and not scene_3.door_interacted:
         actionable = False  # Disable movement during interaction
 
         # If the mini-game has been completed
@@ -1280,6 +1287,7 @@ def scene_3(keys):
             actionable = False
             # Show dialogue indicating the mini-game needs to be played first
             text_box("Maybe we should have a drink first?")
+            scene_3.door_interacted = True
             actionable = True  # Re-enable movement
 
 #---------------------------------------------------------------------------------------------------------#
@@ -1365,10 +1373,10 @@ def scene_4(keys):
     if scene_4.choose_bird and not scene_4.molly_opinion_done:
         
         screen.fill(BLACK)
-        choice_text = font_small.render("Press 1 for seagull", True, WHITE)
-        choice_text2 = font_small.render("Press 2 for pigeon", True, WHITE)
+        choice_text = font_small.render("Press KEY 1 for seagull", True, WHITE)
+        choice_text2 = font_small.render("Press KEY 2 for pigeon", True, WHITE)
         screen.blit(choice_text2, (WIDTH // 2 - choice_text.get_width() // 2, HEIGHT - (150*SPRITE_SCALER)))
-        screen.blit(choice_text, (WIDTH // 2 - choice_text.get_width() // 2, HEIGHT - ((150*SPRITE_SCALER)+15)))
+        screen.blit(choice_text, (WIDTH // 2 - choice_text.get_width() // 2, HEIGHT - ((150*SPRITE_SCALER)+50)))
 
         # Check for keypresses
         if keys[pygame.K_1]:
@@ -1503,6 +1511,7 @@ def scene_5(keys):
 
 #----------------------------------SCENE 6------------------------------------------#
              
+############################################################################################
 def scene_6(keys):
     global sam_pos, molly_pos, actionable, scene
 
@@ -1520,12 +1529,12 @@ def scene_6(keys):
         scene_6.maggie_rect = maggie.get_rect(center=(WIDTH // 4, HEIGHT // 2 + 10))  # Dog in the middle left
         scene_6.mike_rect = mike.get_rect(center=(3 * WIDTH // 4, HEIGHT // 2 + 10))  # Cat in the middle right
 
-        sam_pos = pygame.Vector2(door_rect.centerx - SPRITE_WIDTH  // 2, door_rect.bottom -20)  # In front of the door
+        sam_pos = pygame.Vector2(door_rect.centerx - SPRITE_WIDTH // 2, door_rect.bottom - 20)  # In front of the door
         molly_pos = pygame.Vector2(sam_pos.x + SPRITE_WIDTH - 65, sam_pos.y - 5)  # Slightly to the right of Sam
         scene_6.maggie_pos = pygame.Vector2(scene_6.maggie_rect.x, scene_6.maggie_rect.y)  # Start position of Maggie
         scene_6.mike_pos = pygame.Vector2(scene_6.mike_rect.x, scene_6.mike_rect.y)  # Start position of Mike
-        scene_6.sofa_pos = pygame.Vector2(scene_6.sofa_rect.x, scene_6.sofa_rect.y)  # Start position of Mike
-    
+        scene_6.sofa_pos = pygame.Vector2(scene_6.sofa_rect.x, scene_6.sofa_rect.y)  # Start position of Sofa
+
         scene_6.sam_moved = False  # Flag to track if Sam has started moving
         scene_6.interacted = False  # Flag to track if Maggie has interacted with Sam
         scene_6.returning = False  # Flag to track if Maggie is returning to her original position
@@ -1577,7 +1586,7 @@ def scene_6(keys):
             text_box("Maggie: You got any of them floor burgers, Sam?!")
             scene_6.maggie_exclamation = False  # Remove exclamation mark after interaction
             scene_6.met_maggie = True
-            text_box("Molly: Ignore her! Let's sit on the sofa!")
+            text_box("Molly: Ignore her! Let's sit on the sofa!", "*** Move to the sofa, then click in the joystick for Molly to make her move ***")
             scene_6.moving_to_sofa = True  # Trigger movement to sofa
 
     # Move Maggie to meet Sam if Sam has started moving
@@ -1621,28 +1630,21 @@ def scene_6(keys):
         if abs(scene_6.maggie_pos.x - original_x) < 1 and abs(scene_6.maggie_pos.y - original_y) < 1:
             scene_6.returning = False
             scene_6.met_maggie = True
-            
-    # Automatically move Sam and Molly to the sofa if triggered
+
+    # Automatically move Sam and Molly to the sofa if triggered by pressing the space bar
     if scene_6.moving_to_sofa:
         actionable = True
-        
-          # Assuming scene_6.sofa_rect is defined as the rectangle representing the sofa
+
+        # Assuming scene_6.sofa_rect is defined as the rectangle representing the sofa
         sofa_center = scene_6.sofa_rect.center  # Get the center of the sofa
-        center_threshold = 15  # You can adjust this threshold to make it more sensitive or lenient
 
-        # Calculate the distance between Sam and the sofa's center
-        sam_distance_to_sofa = math.sqrt((sam_pos.x - sofa_center[0])**2 + (sam_pos.y - sofa_center[1])**2)
-        molly_distance_to_sofa = math.sqrt((molly_pos.x - sofa_center[0])**2 + (molly_pos.y - sofa_center[1])**2)
-
-        # If both Sam and Molly are close enough to the sofa center (within threshold)
-        if sam_distance_to_sofa < center_threshold and molly_distance_to_sofa < center_threshold:
+        # Check for space bar press to trigger the move to the sofa
+        if keys[pygame.K_SPACE]:
             actionable = False
             text_box("Molly: Hey, can I kiss you?")
             scene_6.moving_to_sofa = False  # Trigger movement to sofa
             minigame_scene_6()  # Trigger the mini-game
             game_completed()  # End the game
-
-############################################################################################
         
 ### GAMEPLAY LOOP
 
