@@ -1,7 +1,11 @@
 import pygame
 import sys
 import random
-from PIL import Image
+try:
+    from PIL import Image
+    HAS_PIL = True
+except ImportError:
+    HAS_PIL = False
 import textwrap
 import os
 import asyncio
@@ -152,6 +156,13 @@ async def display_gif(screen, gif_path, duration=3000, center=None):
     Returns:
         None
     """
+    if not HAS_PIL:
+        # PIL not available (e.g. web/Pyodide) — skip GIF, just wait
+        screen.fill((0, 0, 0))
+        pygame.display.flip()
+        await asyncio.sleep(duration / 1000.0)
+        return
+
     # Load the GIF using Pillow
     gif = Image.open(gif_path)
     frames = []
@@ -769,7 +780,7 @@ async def minigame_scene_6():
     heart_speed = 13
     heart_direction = 1
     heart_size = (80, 80)  # Larger heart size
-    heart_image = pygame.image.load("assets/sprites/heart.png")  # Replace with your heart image path
+    heart_image = pygame.image.load(os.path.join(BASE_PATH, "assets/sprites/heart.png"))
     heart_image = pygame.transform.scale(heart_image, heart_size)
 
     # Define the target area for the heart
